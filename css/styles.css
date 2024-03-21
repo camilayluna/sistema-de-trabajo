@@ -1,0 +1,256 @@
+/* Estilos generales */
+#herramientas {
+    display: grid;
+    grid-template-columns: repeat(2, auto); /* Dos columnas */
+    gap: 3px;
+}
+body {
+    display: grid;
+    grid-template-columns: repeat(2, auto); /* Dos columnas */
+    gap: 2px;
+    position: relative;
+    width: 100%;
+    font-family: Arial, sans-serif;
+    background-color: hsl(208, 87%, 75%);
+    margin: 50px;
+    padding: 0;
+    height: 100vh;
+    overflow-x: hidden;
+}
+#imag {
+    width: 100%; /* Ajustar el ancho al 100% del contenedor */
+    height: auto; /* Mantener la altura proporcional */
+}
+
+/* Pseudo-elemento para la sombra inferior */
+body::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(53, 77, 112, 0.5) 0%, rgba(53, 77, 112, 0) 100%);
+    z-index: -1; /* Asegurar que esté detrás del contenido */
+}
+
+/* Pseudo-elemento para la luz superior */
+body::after {
+    content: '';
+    position: absolute;
+    bottom: 50%;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+    z-index: -1; /* Asegurar que esté detrás del contenido */
+}
+#mapa_body{
+background: #1e90ff;
+align-content: center;
+}
+.btn{
+    
+    background: #333;
+    color: #f2f8f2;
+    height: 40px;
+    width: 100px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+.btn:hover{
+    background: #32a323;
+    color: #040704;
+    height: 41px;
+    width: 101px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+#borrar_btn{background: #ff0303;
+    color: #f2f8f2;
+    height: 40px;
+    width: 60px;
+    border-radius: 20px;
+    cursor: pointer;
+    stroke: 1px #0d0e0d;
+}
+#borrar_btn:hover{background: #ca0c0c;
+    color: #f2f8f2;
+    height: 40px;
+    width: 62px;
+    border-radius: 20px;
+    cursor: pointer;
+    stroke: 1px #0d0e0d;
+}
+#guardar_btn{background: #03ff57;
+    color: #060e06;
+    height: 40px;
+    width: 70px;
+    border-radius: 20px;
+    cursor: pointer;
+    stroke: 1px #0d0e0d;
+    text-align: center;
+}
+#guardar_btn:hover{background: #22a308;
+    color: #0e1a0e;
+    height: 40px;
+    width: 72px;
+    border-radius: 20px;
+    cursor: pointer;
+    stroke: 1px #0d0e0d;
+}
+/* Estilos restantes */
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 100vh;
+    
+}
+
+.video-container {
+    width: 50%;
+    height: 80vh;
+    margin: 0 10px;
+    box-shadow: 0 2px 2px #0d0e0d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; /* Añadido */
+    z-index: 1; /* Añadido */
+    border: 2px solid transparent; /* Borde transparente para que la sombra se vea */
+    border-radius: 10px; /* Radio de borde */
+    box-shadow: 0 0 10px 5px rgb(0, 102, 255),  /* Sombra roja */
+                0 0 10px 5px rgb(255, 255, 255); /* Sombra azul */
+}
+
+.video-container video {
+    width: 300px;
+    max-width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.formulario-container {
+    width: 100%;
+    max-width: 900px;
+    height: 80vh;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #35506d; /* Cambio de color del formulario */
+    border-radius: 10px;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+    color: #f2f8f2;
+    position: relative; /* Añadido */
+    z-index: 1; /* Añadido */
+    border: 2px solid transparent; /* Borde transparente para que la sombra se vea */
+    border-radius: 10px; /* Radio de borde */
+    box-shadow: 0 0 10px 5px rgb(0, 4, 255),  /* Sombra roja */
+                0 0 10px 5px rgb(243, 243, 243); /* Sombra azul */
+}
+
+#texingre {
+    color: #fafdfa;
+    margin-top: 0;
+    font-size: 40px;
+    text-align: center;
+    -webkit-text-stroke: #1e90ff 1px;
+    text-decoration: underline;
+}
+
+#formulario label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+#formulario input,
+#formulario select,
+#formulario textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#formulario input[type="button"] {
+    width: auto;
+    margin-bottom: 1px;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+#formulario input[type="button"]:hover {
+    background-color: #1e90ff;
+}
+
+#formulario input[type="text"]:focus,
+#formulario input[type="date"]:focus {
+    outline: none;
+    border-color: #4169e1;
+    box-shadow: 0 0 8px rgba(65, 105, 225, 0.6);
+}
+
+#resultados {
+    text-align: left;
+    width: 100%;
+    height: 200px;
+    font-size: 40px;
+}
+
+#descripcion {
+    text-align: center;
+    width: 100%;
+    height: 70px;
+    font-size: 40px;
+}
+
+#tex_busqueda {
+    background-color: #00ffc8b2;
+    color: #fff9f9;
+    text-decoration: double;
+    box-shadow: 3px 2px #333;
+    border-radius: 10px;
+    text-align: center;
+   -webkit-text-stroke: #353835 1px;
+}
+#btn_guardar{background-color: #1effce;
+box-shadow: 2px 2px #0d0e0d;
+text-align: center;}
+
+#btn_borrar{background: #ff9c07;}
+
+
+#goma_btn{background: #ff03f2;
+    color: #ffffff;
+    height: 40px;
+    width: 60px;
+    border-radius: 20px;
+    cursor: pointer;
+    stroke: 1px #0d0e0d;
+}
+#goma_btn:hover{background: #8908a3;
+    color: #fbfffb;
+    height: 40px;
+    width: 62px;
+    border-radius: 20px;
+    cursor: pointer;
+    stroke: 1px #0d0e0d;
+}
+#canvasImage{
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 3px solid #000000;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+#imagen-asociada{ width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 3px solid #070606;
+    border-radius: 5px;
+    box-sizing: border-box;
+    
+}

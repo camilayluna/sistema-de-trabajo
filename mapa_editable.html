@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Editable</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <style>
+        /* Estilos CSS para la página del mapa editable */
+        canvas {
+            border: 15px solid rgb(16, 92, 179);
+            border-radius: 10px;
+            cursor: crosshair; /* Cambiar el cursor para indicar que se puede dibujar */
+        }
+
+        #herramientas {
+            margin-top: 20px;
+        }
+
+        #herramientas button {
+            margin-right: 10px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="mapa" width="1000" height="800"></canvas>
+    <div id="herramientas">
+        <button class="btn" onclick="seleccionarHerramienta('texto')">Texto</button>
+        <button class="btn" onclick="seleccionarHerramienta('lineaHorizontal')">Cruce Horizontal</button>
+        <button class="btn" onclick="seleccionarHerramienta('lineaVertical')">Cruce Vertical</button>
+        <button class="btn" onclick="seleccionarHerramienta('circulo')">Poste Caído</button>
+        <button class="btn" onclick="seleccionarHerramienta('luminaria')">Luminaria</button>
+        <button class="btn" onclick="seleccionarHerramienta('cuadrado')">Zanjeo</button>
+        <button class="btn" onclick="seleccionarHerramienta('triangulo')">Desmalezado</button>
+        <button class="btn" onclick="seleccionarHerramienta('rombo')">Bacheo</button>
+        <button class="btn" onclick="seleccionarHerramienta('rectanguloDiagonal')">Residuos Domiciliarios</button>
+        <button class="btn" onclick="seleccionarHerramienta('nuevoHogar')">No Habituales</button>
+        <input class="btn" type="button" value="Atrás" onclick="irAtras()">
+        <button id="goma_btn" onclick="seleccionarHerramienta('goma')">Goma</button>
+        <button id="guardar_btn" onclick="guardarEdiciones()">Guardar</button>
+       
+
+    </div>
+
+    <script>
+        let herramientaSeleccionada = null;
+        let canvas = document.getElementById('mapa');
+        let ctxi= canvas.getContext('2d');
+        let elementosDibujados = [];
+        let imagen = new Image();
+
+        // Cargar la imagen en el canvas
+        imagen.onload = function() {
+            ctx.drawImage(imagen, 0, 0, canvas.width, canvas.height);
+        };
+        
+
+        // Función para seleccionar una herramienta
+        function seleccionarHerramienta(herramienta) {
+            herramientaSeleccionada = herramienta;
+        }
+// Obtener el canvas y el contexto
+
+        let ctx = canvas.getContext('2d');
+
+       // Definir el tamaño del cuadrado central
+        let centralSize = 300;
+        let squareSpacing = 70; // Espacio entre el cuadrado central y las líneas exteriores
+
+        // Definir el tamaño total del canvas
+        let totalSize = centralSize + 1 * squareSpacing;
+
+        // Ajustar el tamaño del canvas
+        canvas.width = totalSize * 2;
+        canvas.height = totalSize * 2;
+
+        // Dibujar el fondo blanco que ocupa todo el canvas
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Dibujar el cuadrado central
+        let centerX = canvas.width / 2;
+        let centerY = canvas.height / 2;
+        let squareSize = centralSize;
+        let squareRadius = 40; // Radio del borde del cuadrado central
+        let lineWidth = 17; // Grosor de la línea
+
+        // Dibujar el cuadrado central
+        ctx.strokeStyle = 'green'; // Color de la línea
+        ctx.lineWidth = lineWidth; // Grosor de la línea
+        ctx.fillStyle = 'transparent'; // Color del relleno (transparente)
+        ctx.lineCap = 'round'; // Extremos de línea redondeados
+        ctx.lineJoin = 'round'; // Esquinas de línea redondeadas
+        ctx.beginPath();
+        ctx.moveTo(centerX - squareSize / 2 + squareRadius, centerY - squareSize / 2);
+        ctx.lineTo(centerX + squareSize / 2 - squareRadius, centerY - squareSize / 2);
+        ctx.arcTo(centerX + squareSize / 2, centerY - squareSize / 2, centerX + squareSize / 2, centerY - squareSize / 2 + squareRadius, squareRadius);
+        ctx.lineTo(centerX + squareSize / 2, centerY + squareSize / 2 - squareRadius);
+        ctx.arcTo(centerX + squareSize / 2, centerY + squareSize / 2, centerX + squareSize / 2 - squareRadius, centerY + squareSize / 2, squareRadius);
+        ctx.lineTo(centerX - squareSize / 2 + squareRadius, centerY + squareSize / 2);
+        ctx.arcTo(centerX - squareSize / 2, centerY + squareSize / 2, centerX - squareSize / 2, centerY + squareSize / 2 - squareRadius, squareRadius);
+        ctx.lineTo(centerX - squareSize / 2, centerY - squareSize / 2 + squareRadius);
+        ctx.arcTo(centerX - squareSize / 2, centerY - squareSize / 2, centerX - squareSize / 2 + squareRadius, centerY - squareSize / 2, squareRadius);
+        ctx.closePath();
+        ctx.stroke();
+
+        // Dibujar las líneas en cada lado del cuadrado central
+        ctx.beginPath();
+        ctx.moveTo(centerX - squareSize / 2 - squareSpacing * 2, centerY - squareSize / 2);
+        ctx.lineTo(centerX - squareSize / 2 - squareSpacing * 2, centerY + squareSize / 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(centerX + squareSize / 2 + squareSpacing * 2, centerY - squareSize / 2);
+        ctx.lineTo(centerX + squareSize / 2 + squareSpacing * 2, centerY + squareSize / 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(centerX - squareSize / 1.2, centerY - squareSize / 2 - squareSpacing * 2);
+        ctx.lineTo(centerX + squareSize / 1.2, centerY - squareSize / 2 - squareSpacing * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(centerX - squareSize / 1.2, centerY + squareSize / 2 + squareSpacing * 2);
+        ctx.lineTo(centerX + squareSize / 1.2, centerY + squareSize / 2 + squareSpacing * 2);
+        ctx.stroke();
+        // Función para aplicar la herramienta seleccionada en la posición del clic
+        function aplicarHerramienta(event) {
+            if (herramientaSeleccionada === null) return;
+
+            const x = event.offsetX;
+            const y = event.offsetY;
+            let color;
+
+            switch (herramientaSeleccionada) {
+                // Define los colores para diferentes herramientas
+                case 'texto':
+                    color = 'black';
+                    break;
+                case 'lineaHorizontal':
+                case 'lineaVertical':
+                case 'circulo':
+                case 'luminaria':
+                    color = 'red';
+                    break;
+                case 'cuadrado':
+                case 'triangulo':
+                case 'rombo':
+                case 'rectanguloDiagonal':
+                case 'nuevoHogar':
+                    color = 'black';
+                    break;
+            }
+
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+
+            switch (herramientaSeleccionada) {
+                // Dibuja según la herramienta seleccionada
+                case 'texto':
+                    const texto = prompt("Ingrese el texto:");
+                    if (texto !== null && texto !== "") {
+                        ctx.font = "20px Arial";
+                        ctx.fillText(texto, x, y);
+                        elementosDibujados.push({ tipo: 'texto', x: x, y: y, texto: texto, color: color });
+                        ctx.fillText('CALLE', x, y + 30); 
+                    }
+                    break;
+                case 'lineaHorizontal':
+                ctx.font = "30px Arial";
+                    ctx.beginPath();
+                    ctx.moveTo(x - 50, y);
+                    ctx.lineTo(x + 50, y);
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    elementosDibujados.push({ tipo: 'lineaHorizontal', x: x, y: y, color: color });
+                    ctx.fillText('Cruce o caño roto', x, y + 30); 
+                    ctx.font = "30px Arial";
+                    break;
+                case 'lineaVertical':
+                    ctx.beginPath();
+                    ctx.moveTo(x, y - 30);
+                    ctx.lineTo(x, y + 70);
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    elementosDibujados.push({ tipo: 'lineaVertical', x: x, y: y, color: color });
+                    ctx.fillText('Cruce o caño roto', x, y + 30); 
+                    ctx.font = "30px Arial";
+                    break;
+                case 'circulo':
+                    ctx.beginPath();
+                    ctx.arc(x, y, 13, 0, Math.PI * 2);
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    ctx.fill();
+                    elementosDibujados.push({ tipo: 'circulo', x: x, y: y, color: color });
+                    ctx.fillText('Poste caido', x, y + 30); 
+                    ctx.font = "30px Arial";
+                    break;
+                case 'luminaria':
+                    ctx.beginPath();
+                    ctx.arc(x, y, 10, 0, Math.PI * 2);
+                    ctx.fillStyle = 'orange';
+                    ctx.fill();
+                    ctx.font = "30px Arial";
+                     ctx.strokeStyle = 'black'; // Color del borde
+    ctx.lineWidth = 2; // Grosor del borde
+    ctx.stroke(); // Dibujar el borde
+                    elementosDibujados.push({ tipo: 'luminaria', x: x, y: y, color: color });
+                    ctx.fillText('Luminaria', x, y + 30); 
+                    ctx.font = "30px Arial";
+                    break;
+                case 'cuadrado':
+                ctx.font = "30px Arial";
+                    ctx.beginPath();
+                    ctx.rect(x - 22, y - 22, 44, 44);
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    elementosDibujados.push({ tipo: 'cuadrado', x: x, y: y, color: color });
+                    ctx.fillText('Zangeo', x, y + 30); 
+                    ctx.font = "30px Arial";
+                    break;
+                case 'triangulo':
+                    ctx.beginPath();
+                    ctx.moveTo(x, y - 22);
+                    ctx.lineTo(x - 26, y + 22);
+                    ctx.lineTo(x + 26, y + 22);
+                    ctx.closePath();
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    elementosDibujados.push({ tipo: 'triangulo', x: x, y: y, color: color });
+                    ctx.fillText('Desmalezado', x, y + 30); 
+                    ctx.font = "30px Arial";
+                    break;
+                case 'rombo':
+                ctx.font = "30px Arial";
+                ctx.fillText('Bache', x, y + 30); 
+                    ctx.beginPath();
+                    ctx.moveTo(x, y - 22);
+                    ctx.lineTo(x - 22, y);
+                    ctx.lineTo(x, y + 22);
+                    ctx.lineTo(x + 22, y);
+                    ctx.closePath();
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    elementosDibujados.push({ tipo: 'rombo', x: x, y: y, color: color });
+                    break;
+                    case 'goma':
+                    ctx.beginPath();
+                    ctx.rect(x - 22, y - 22, 44, 44);
+                    ctx.fillStyle = 'white';
+                    ctx.fill()
+                    ctx.lineWidth = 3; 
+                    elementosDibujados.push({ tipo: 'cuadrado', x: x, y: y, color: color });
+                    break;
+                    
+                    case 'rectanguloDiagonal':
+    const text = "RD"; // Texto a dibujar
+    ctx.fillText('Residuos domiciliarios', x, y + 30); 
+    ctx.font = "20px Arial"; // Establecer fuente y tamaño de texto
+    ctx.fillText(text, x - 10, y + 10); // Dibujar el texto en la posición adecuada
+    elementosDibujados.push({ tipo: 'rectanguloDiagonal', x: x, y: y, texto: texto, color: color });
+    break;
+                    case 'nuevoHogar':
+                    ctx.fillText('no habituales', x, y + 30); 
+    const tex = "NH"; // Texto a dibujar
+    ctx.font = "20px Arial"; // Establecer fuente y tamaño de texto
+    ctx.fillText(tex, x - 10, y + 10); // Dibujar el texto en la posición adecuada
+    elementosDibujados.push({ tipo: 'rectanguloDiagonal', x: x, y: y, texto: texto, color: color });
+    break;
+                }
+           
+        }
+
+     // Función para ir a la página index.html
+     function irAtras() {
+            window.location.href = "index.html";
+        }
+
+        function guardarEdiciones() {
+    let base64Image = canvas.toDataURL("image/png");
+    localStorage.setItem("editedImage", base64Image); // Guardar la imagen en localStorage
+    document.getElementById("imagen_base64").value = base64Image; // Actualizar el valor del campo de entrada
+    alert("Imagen guardada con éxito.");
+    irAtras(); // Llamar a la función para volver atrás después de guardar
+}
+
+
+        // Evento de clic en el canvas para aplicar la herramienta seleccionada
+        canvas.addEventListener('click', aplicarHerramienta);
+
+        // Evento de clic en el botón de borrar
+        document.getElementById('borrar_btn').addEventListener('click', borrar);
+    // Función para obtener el número de reclamo de la URL
+function obtenerNumeroReclamoDeURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('numeroReclamo');
+}
+
+// Función para cargar la imagen asociada al número de reclamo
+function cargarImagenAsociada() {
+    const numeroReclamo = obtenerNumeroReclamoDeURL();
+    if (!numeroReclamo) {
+        alert('Número de reclamo no proporcionado en la URL');
+        return;
+    }
+
+    // Recuperar la imagen asociada utilizando el número de reclamo y mostrarla en un elemento <img> o en un <canvas>
+    const base64Image = localStorage.getItem("editedImage_" + numeroReclamo);
+    if (base64Image) {
+        const imgElement = document.createElement('img');
+        imgElement.src = base64Image;
+        document.body.appendChild(imgElement); // Otra opción es mostrar la imagen en un elemento específico de la página
+    } else {
+        alert('No se encontró ninguna imagen asociada al número de reclamo');
+    }
+}
+
+// Llamar a la función para cargar la imagen asociada cuando se cargue la página
+window.onload = cargarImagenAsociada;
+
+    </script>
+</body>
+</html>

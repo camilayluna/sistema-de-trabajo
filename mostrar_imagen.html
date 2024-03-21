@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mostrar Imagen</title>
+</head>
+<body>
+    <h1>Imagen asociada al número de reclamo</h1>
+    <div>
+        <img id="imagenAsociada" src="" alt="Imagen asociada al número de reclamo">
+    </div>
+
+    <script>
+        window.onload = function() {
+            // Obtener la imagen asociada del sessionStorage
+            const base64Image = sessionStorage.getItem("imagenAsociada");
+            if (base64Image) {
+                // Mostrar la imagen
+                const imgElement = document.getElementById("imagenAsociada");
+                imgElement.src = base64Image;
+            } else {
+                // Si no se encuentra la imagen, mostrar un mensaje de error
+                alert("No se encontró ninguna imagen asociada.");
+            }
+        };
+    </script>
+</body>
+</html>

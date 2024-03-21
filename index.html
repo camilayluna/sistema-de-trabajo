@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autogestión de tareas</title>
+    <link rel="stylesheet" href="./css/styles.css">
+ 
+</head>
+<body>
+    <div class="container">
+        <div class="video-container">
+            <!-- Primer video -->
+            <video controls autoplay muted loop>
+                <source src="./img/DE TAREAS.mp4" type="video/mp4">
+                Tu navegador no admite el elemento de video.
+            </video>
+        </div>
+
+        <div id="formulario" class="formulario-container">
+            <!-- Formulario -->
+            <header id="header_for">
+                <h2 id="texingre">Orden de trabajo</h2>
+                <form id="form">
+                    <label for="tareas">Trabajo a realizar:</label><br>
+                    <select id="tareas" name="tareas">
+                        <option value="">Seleccionar</option>
+                        <option value="luminarias">Luminarias</option>
+                        <option value="desmalezado">Desmalezado</option>
+                        <option value="zangeo">Zangeo</option>
+                        <option value="bacheo">Bacheo</option>
+                        <option value="poste caído">Poste caído</option>
+                        <option value="residuos domiciliarios">Residuos domiciliarios</option>
+                        <option value="no habituales">No Habituales</option>
+                        <option value="caño roto">Caño roto</option>
+                        <option value="otro">otro</option>
+                    </select><br>
+
+                    <label for="direccion">Dirección (ej. 659 12 y 13 o 659 esq 12):</label><br>
+                    <input type="text" id="direccion" name="direccion"><br>
+
+                    <label for="nombre">Nombre del Vecino/a:</label><br>
+                    <input type="text" id="nombre" name="nombre"><br> 
+
+                    <label for="telefono">Teléfono:</label><br>
+                    <input type="tel" id="telefono" name="telefono"><br>
+
+                    <label for="email">Email:</label><br>
+                    <input type="email" id="email" name="email"><br>
+                    
+                    <label for="ingreso">Registro la orden de trabajo:</label><br>
+                    <input type="text" id="ingreso" name="ingreso"><br>
+
+                    <label for="descripcion">Descripción:</label><br>
+                    <textarea id="descripcion" name="descripcion"></textarea><br>
+
+                    <label for="fecha">Fecha:</label><br>
+                    <input type="date" id="fecha" name="fecha"><br>
+                    <input type="hidden" id="imagen_base64" name="imagen_base64">
+
+                    <label for="relevo">Relevo o superviso:</label><br>
+                    <input type="text" id="relevo" name="relevo"><br>
+
+                    <!-- Campo para el número de reclamo -->
+                    <label for="numero_reclamo">N° de Reclamo:</label><br>
+                    <input type="text" id="numero_reclamo" name="numero_reclamo"><br>
+
+                    <!-- Agregar campo para subir imagen -->
+                    <label for="imagen">Imagen:</label><br>
+                   
+
+                    <div class="buttons">
+                        <input id="btn_guardar"  type="button" value="Guardar" onclick="guardar()">
+                        <input id="btn_buscarr" type="button" value="Buscar por N° Reclamo" onclick="buscarPorNumeroReclamo()">
+                        
+                        
+                        <input id="btn_hecho" type="button" value="Hecho/No hecho" onclick="marcarComoRealizado()">
+                        <input id="btn_info" type="button" value="Información Mensual" onclick="exportToExcel()">
+                        <input id="btn_excelh" type="button" value="Excel de hoy" onclick="exportToExcelHoy()">
+                        <input id="btn_borrar" type="button" value="Borrar todo" onclick="borrar()">
+                        
+
+                      
+                        <div id="contenedor-imagen" class="canvas-container">
+                            <canvas id="canvas" width="400" height="300"></canvas>
+                        </div>
+                        
+                       
+                        <label for="numero_reclamo_input">Número de Reclamo:</label>
+<input type="text" id="numero_reclamo_input" placeholder="Ingrese el número de reclamo">
+<input  class="btn" type="button" value="Asociar al Formulario" onclick="asociarImagenAlFormulario()">
+
+<button class="btn" onclick="verImagenAsociada()">Ver Imagen Asociada</button>
+<input type="button" value="Mapa" onclick="abrirMapa()">
+<button class="btn" onclick="descargarImagen()">Descargar Imagen</button>
+
+                        
+                        
+
+
+                    </div>
+                </form>
+
+                <h2 id="tex_busqueda">Resultados de Búsqueda</h2>
+                <textarea id="resultados" rows="5" readonly></textarea>
+                <input id="btn_limpiar" type="button" value="Limpiar" onclick="limpiar()">
+                <input id="btn_buscar" type="button" value="Buscar" onclick="buscar()">
+            </header>
+        </div>
+
+        <div class="video-container">
+            <!-- Segundo video -->
+            <video controls autoplay muted loop>
+                <source src="./img/DE TAREAS.mp4" type="video/mp4">
+                Tu navegador no admite el elemento de video.
+            </video>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    <script>
+        // Función para abrir el mapa
+function abrirMapa() {
+    window.location.href = "mapa_editable.html";
+}
+
+        function asociarImagenAlFormulario() {
+    // Obtener el número de reclamo ingresado por el usuario
+    const numeroReclamo = document.getElementById("numero_reclamo_input").value.trim();
+    
+    // Verificar si se ha ingresado un número de reclamo
+    if (!numeroReclamo) {
+        alert("Por favor, ingrese un número de reclamo.");
+        return;
+    }
+    
+    // Obtener la imagen editada del canvas
+    const base64Image = canvas.toDataURL("image/png");
+    
+    // Guardar la imagen editada en el almacenamiento local asociada al número de reclamo
+    localStorage.setItem("editedImage_" + numeroReclamo, base64Image);
+    
+    // Notificar al usuario que la imagen se ha asociado al formulario con el número de reclamo ingresado
+    alert("Imagen asociada al formulario con el número de reclamo: " + numeroReclamo);
+}
+
+        let formularios = {};
+        let ctx = document.getElementById('canvas').getContext('2d');
+// Lógica para cargar la imagen del localStorage en el canvas
+function cargarImagenEnCanvas() {
+    let base64Image = localStorage.getItem("editedImage");
+    if (base64Image) {
+        let img = new Image();
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Dibujar la imagen en el canvas
+        };
+        img.src = base64Image;
+    }
+}
+
+// Llamar a la función para cargar la imagen en el canvas cuando se cargue la página
+window.onload = cargarImagenEnCanvas;
+
+        function asociarAlFormulario() {
+    let numeroReclamo = document.getElementById("numeroReclamo").value;
+    if (numeroReclamo.trim() === "") {
+        alert("Por favor, ingrese un número de reclamo.");
+        return;
+    }
+    
+    let base64Image = canvas.toDataURL("image/png");
+    localStorage.setItem("editedImage_" + numeroReclamo, base64Image);
+    alert("Imagen asociada al formulario con éxito.");
+}
+// Paso 1: Obtener el número de reclamo (reemplaza esto con tu método de obtención)
+let numeroReclamoBuscado = obtenerNumeroReclamo();
+
+// Paso 2: Recuperar la imagen asociada
+let base64Image = localStorage.getItem("editedImage_" + numeroReclamoBuscado);
+
+// Paso 3: Mostrar la imagen si se encuentra
+if (base64Image) {
+    // Si se encuentra la imagen asociada, la mostramos en un elemento <img>
+    let imgElement = document.createElement('img');
+    imgElement.src = base64Image;
+
+    // Añadimos la imagen al contenedor deseado en tu página
+    let contenedorImagen = document.getElementById('contenedor-imagen');
+    contenedorImagen.appendChild(imgElement);
+} else {
+    // Si no se encuentra la imagen asociada, puedes mostrar un mensaje indicando que no hay imagen disponible
+    console.log("No se encontró ninguna imagen asociada al número de reclamo buscado.");
+}
+
+        // Función para guardar las ediciones, incluida la imagen
+function guardarEdiciones() {
+    let base64Image = canvas.toDataURL("image/png");
+    localStorage.setItem("editedImage", base64Image); // Guardar la imagen en localStorage
+    alert("Imagen guardada con éxito.");
+    
+    // También guardas otros datos del formulario si es necesario
+    // localStorage.setItem("formularioData", JSON.stringify(formData));
+}
+
+// Función para cargar el formulario y la imagen desde el localStorage
+function cargarFormulario() {
+   
+    // Cargar la imagen editada
+    let base64Image = localStorage.getItem("editedImage");
+    if (base64Image) {
+        let img = new Image();
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Dibujar la imagen en el canvas
+        };
+        img.src = base64Image;
+    }
+}
+
+
+// Llamas a esta función cuando cargas el formulario para mostrar la imagen y los datos
+cargarFormulario();
+
+         // Cargar la imagen del canvas guardada en localStorage
+         document.getElementById('canvas').src = localStorage.getItem('editedImage');
+        function abrirMapa() {
+    // Redireccionar a la página "mapa_editable.html"
+    window.location.href = "mapa_editable.html";
+}
+     
+
+
+// Al cargar la página, recuperar los datos del localStorage si existen
+window.onload = function() {
+    const savedData = localStorage.getItem('formularios');
+    if (savedData) {
+        formularios = JSON.parse(savedData);
+    }
+    // Resto de tu lógica dentro de window.onload, si es necesario
+};
+
+// Objeto para almacenar los formularios
+
+        // Función para guardar el formulario
+        function guardar() {
+            const tarea = document.getElementById('tareas').value;
+            const direccion = document.getElementById('direccion').value;
+            const nombre = document.getElementById('nombre').value;
+            const telefono = document.getElementById('telefono').value;
+            const email = document.getElementById('email').value;
+            const ingreso = document.getElementById('ingreso').value;
+            let descripcion = document.getElementById('descripcion').value;
+            const fecha = document.getElementById('fecha').value;
+            const relevo = document.getElementById('relevo').value;
+            const numeroReclamo = generarNumeroReclamo(nombre, tarea);
+
+            // Validar campos obligatorios
+            if (!tarea || !direccion || !nombre || !telefono || !email || !ingreso || !fecha || !relevo) {
+                alert('Todos los campos son obligatorios');
+                return;
+            }
+
+            // Verificar si ya existe un formulario para esta dirección y tarea
+            if (formularios[direccion + "-" + tarea]) {
+                if (formularios[direccion + "-" + tarea].estado === "No hecho") {
+                    alert('Hay un trabajo pendiente para esta dirección y tarea');
+                    return;
+                } else if (formularios[direccion + "-" + tarea].estado === "Hecho") {
+                    if (descripcion === "") {
+                        alert('Ingresar una descripción sobre el trabajo realizado');
+                        return;
+                    } else {
+                        // Agregar la descripción actual a la descripción existente
+                        descripcion = `${formularios[direccion + "-" + tarea].descripcion}\n${descripcion}`;
+                    }
+                }
+            }
+
+            // Guardar formulario en el objeto
+            formularios[direccion + "-" + tarea] = { tarea, direccion, nombre, telefono, email, ingreso, descripcion, fecha, relevo, estado: "No hecho", numeroReclamo };
+
+            alert('Trabajo guardado correctamente');
+
+            // Limpiar campos del formulario después de guardar
+            limpiarCampos();
+
+            // Mostrar número de reclamo
+            document.getElementById('numero_reclamo').value = numeroReclamo;
+
+            // Guardar en localStorage
+            localStorage.setItem('formularios', JSON.stringify(formularios));
+        }
+
+        // Función para buscar formularios por dirección y/o tarea
+        function buscar() {
+            const direccionABuscar = document.getElementById('direccion').value.trim();
+            const tareaABuscar = document.getElementById('tareas').value.trim();
+
+            let resultados = [];
+            for (const key in formularios) {
+                const formulario = formularios[key];
+                if ((!direccionABuscar || formulario.direccion.includes(direccionABuscar)) && (!tareaABuscar || formulario.tarea === tareaABuscar)) {
+                    resultados.push(formulario);
+                }
+            }
+
+            // Mostrar resultados en el textarea
+            const resultadosTextarea = document.getElementById('resultados');
+            resultadosTextarea.value = '';
+            resultados.forEach(formulario => {
+                resultadosTextarea.value += `Tarea: ${formulario.tarea}\nDirección: ${formulario.direccion}\nNombre: ${formulario.nombre}\nTeléfono: ${formulario.telefono}\nEmail: ${formulario.email}\nIngreso: ${formulario.ingreso}\nDescripción: ${formulario.descripcion}\nFecha: ${formulario.fecha}\nRelevo: ${formulario.relevo}\nEstado: ${formulario.estado}\nNúmero de Reclamo: ${formulario.numeroReclamo}\n\n`;
+            });
+
+            if (resultados.length === 0) {
+                alert('No se encontraron resultados');
+            }
+        }
+
+        // Función para buscar formularios por número de reclamo
+        function buscarPorNumeroReclamo() {
+            const numeroReclamoABuscar = document.getElementById('numero_reclamo').value.trim();
+            if (!numeroReclamoABuscar) {
+                alert('Por favor, ingrese un número de reclamo');
+                return;
+            }
+
+            let formularioEncontrado = null;
+            for (const key in formularios) {
+                const formulario = formularios[key];
+                if (formulario.numeroReclamo === numeroReclamoABuscar) {
+                    formularioEncontrado = formulario;
+                    break;
+                }
+            }
+
+            if (formularioEncontrado) {
+                const resultadosTextarea = document.getElementById('resultados');
+                resultadosTextarea.value = `Tarea: ${formularioEncontrado.tarea}\nDirección: ${formularioEncontrado.direccion}\nNombre: ${formularioEncontrado.nombre}\nTeléfono: ${formularioEncontrado.telefono}\nEmail: ${formularioEncontrado.email}\nIngreso: ${formularioEncontrado.ingreso}\nDescripción: ${formularioEncontrado.descripcion}\nFecha: ${formularioEncontrado.fecha}\nRelevo: ${formularioEncontrado.relevo}\nEstado: ${formularioEncontrado.estado}\nNúmero de Reclamo: ${formularioEncontrado.numeroReclamo}`;
+            } else {
+                alert('No se encontró ningún formulario con ese número de reclamo');
+            }
+        }
+
+        // Función para limpiar el texto de búsqueda
+        function limpiar() {
+            document.getElementById('resultados').value = '';
+        }
+
+        // Función para marcar el formulario como realizado
+        function marcarComoRealizado() {
+            const tarea = document.getElementById('tareas').value;
+            const direccion = document.getElementById('direccion').value;
+
+            if (!tarea || !direccion) {
+                alert('Por favor, seleccione una tarea y una dirección');
+                return;
+            }
+
+            const formulario = formularios[direccion + "-" + tarea];
+            if (formulario) {
+                if (formulario.estado === "No hecho") {
+                    if (formulario.descripcion === "") {
+                        alert('Ingresar una descripción explicando por qué no se realizó el trabajo');
+                        return;
+                    } else {
+                        // Preguntar al usuario por una descripción adicional
+                        const nuevaDescripcion = prompt("Por favor, ingrese una descripción adicional:");
+                        if (nuevaDescripcion) {
+                            // Cambiar estado a "Hecho", agregar descripción adicional y actualizar fecha
+                            formulario.estado = "Hecho";
+                            formulario.fecha = obtenerFechaActual();
+                            formulario.descripcion += `\nDescripción adicional: ${nuevaDescripcion}`;
+                            alert('Trabajo realizado');
+                        } else {
+                            alert('Se requiere una descripción para marcar el trabajo como realizado');
+                            return;
+                        }
+                    }
+                } else if (formulario.estado === "Hecho") {
+                    const nuevaDescripcion = prompt("Por favor, ingrese una descripción adicional para explicar por qué se necesita volver a realizar el trabajo:");
+                    if (nuevaDescripcion) {
+                        formulario.estado = "No hecho";
+                        formulario.fecha = obtenerFechaActual();
+                        formulario.descripcion += `\n---\nEstado cambiado a No realizado el ${formulario.fecha}\nNueva descripción: ${nuevaDescripcion}`;
+                        alert('Formulario marcado como no realizado');
+                    } else {
+                        alert('Se requiere una descripción adicional para cambiar el estado del trabajo');
+                        return;
+                    }
+                }
+            } else {
+                alert('No se encontró la orden para esta dirección y trabajo');
+            }
+
+            // Guardar en localStorage
+            localStorage.setItem('formularios', JSON.stringify(formularios));
+        }
+
+        // Función para exportar a Excel
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(Object.values(formularios));
+            XLSX.utils.book_append_sheet(wb, ws, "Formularios");
+            XLSX.writeFile(wb, "formularios.xlsx");
+        }
+
+        // Función para exportar a Excel solo los datos de hoy
+        function exportToExcelHoy() {
+            const fechaInput = document.getElementById('fecha').value;
+            const fecha = new Date(fechaInput);
+            const formulariosFecha = [];
+            for (const key in formularios) {
+                const formulario = formularios[key];
+                const fechaFormulario = new Date(formulario.fecha);
+                if (fechaFormulario.toDateString() === fecha.toDateString()) {
+                    formulariosFecha.push(formulario);
+                }
+            }
+            if (formulariosFecha.length > 0) {
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(formulariosFecha);
+                XLSX.utils.book_append_sheet(wb, ws, "Formularios");
+                XLSX.writeFile(wb, "formularios_hoy.xlsx");
+            } else {
+                alert('No hay formularios para la fecha seleccionada');
+            }
+        }
+
+        // Función para borrar todos los formularios
+        function borrar() {
+            const confirmar = confirm('¿Estás seguro de que deseas borrar todos los formularios? Esta acción no se puede deshacer.');
+            if (confirmar) {
+                formularios = {};
+                localStorage.removeItem('formularios');
+                alert('Todos los formularios han sido borrados');
+                limpiarCampos();
+            }
+        }
+
+        // Función para limpiar los campos del formulario
+        function limpiarCampos() {
+            document.getElementById('tareas').value = "";
+            document.getElementById('direccion').value = "";
+            document.getElementById('nombre').value = "";
+            document.getElementById('telefono').value = "";
+            document.getElementById('email').value = "";
+            document.getElementById('ingreso').value = "";
+            document.getElementById('descripcion').value = "";
+            document.getElementById('fecha').value = "";
+            document.getElementById('relevo').value = "";
+            document.getElementById('numero_reclamo').value = "";
+        }
+
+        // Función para obtener la fecha actual en formato dd/mm/yyyy
+        function obtenerFechaActual() {
+            const hoy = new Date();
+            const dia = hoy.getDate().toString().padStart(2, '0');
+            const mes = (hoy.getMonth() + 1).toString().padStart(2, '0'); // Sumar 1 al mes ya que en JavaScript los meses van de 0 a 11
+            const año = hoy.getFullYear();
+            return `${dia}/${mes}/${año}`;
+        }
+
+        // Función para generar el número de reclamo
+        function generarNumeroReclamo(nombre, tarea) {
+            const nombreLimpiado = nombre.replace(/\s+/g, '').toUpperCase();
+            
+            const tareaLimpiada = tarea.replace(/\s+/g, '').toUpperCase();
+            
+            const numeroAleatorio = Math.floor(Math.random() * 1000).toString().padStart(4, '0');
+            return `${nombreLimpiado.slice(0, 3)}${numeroAleatorio}`;
+        }
+
+        // Función para abrir el mapa
+        function abrirMapa() {
+            window.location.href = "mapa_editable.html";
+        }
+        function obtenerNumeroReclamo() {
+    return document.getElementById("numero_reclamo").value.trim();
+}
+// Corrección para mostrar la imagen en el canvas
+
+// Función para buscar formularios por número de reclamo
+function cargarImagenEnCanvas() {
+    const numeroReclamo = obtenerNumeroReclamo();
+    const base64Image = localStorage.getItem("editedImage_" + numeroReclamo);
+    if (base64Image) {
+        const img = new Image();
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+        img.src = base64Image;
+    }
+}
+
+
+
+// Paso 3: Mostrar la imagen si se encuentra
+if (base64Image) {
+    // Si se encuentra la imagen asociada, la mostramos en un elemento <img>
+    const imgElement = document.createElement('img');
+    imgElement.src = base64Image;
+
+    // Añadimos la imagen al contenedor deseado en tu página
+    const contenedorImagen = document.getElementById('contenedor-imagen');
+    contenedorImagen.innerHTML = ''; // Limpiar el contenedor antes de añadir la nueva imagen
+    contenedorImagen.appendChild(imgElement);
+} else {
+    // Si no se encuentra la imagen asociada, puedes mostrar un mensaje indicando que no hay imagen disponible
+    console.log("No se encontró ninguna imagen asociada al número de reclamo buscado.");
+}
+function verImagenAsociada() {
+    const numeroReclamo = document.getElementById("numero_reclamo_input").value.trim();
+    const base64Image = localStorage.getItem("editedImage_" + numeroReclamo);
+    
+    if (base64Image) {
+        // Abrir la imagen en una nueva ventana o pestaña
+        const ventanaImagen = window.open();
+        ventanaImagen.document.write(`<img src="${base64Image}" alt="Imagen asociada al número de reclamo">`);
+    } else {
+        alert("No se encontró ninguna imagen asociada al número de reclamo ingresado.");
+    }
+}
+
+function descargarImagen() {
+    const numeroReclamo = document.getElementById("numero_reclamo_input").value.trim();
+    const base64Image = localStorage.getItem("editedImage_" + numeroReclamo);
+    
+    if (base64Image) {
+        // Crear un enlace temporal
+        const enlaceDescarga = document.createElement("a");
+        enlaceDescarga.href = base64Image;
+        enlaceDescarga.download = "imagen_reclamo_" + numeroReclamo + ".png";
+
+        // Agregar el enlace al documento y simular un clic para iniciar la descarga
+        document.body.appendChild(enlaceDescarga);
+        enlaceDescarga.click();
+
+        // Limpiar el enlace temporal
+        document.body.removeChild(enlaceDescarga);
+    } else {
+        alert("No se encontró ninguna imagen asociada al número de reclamo ingresado.");
+    }
+}
+
+
+    </script>
+</body>
+</html>
